@@ -1,6 +1,6 @@
 # Changing Habits Around Food — PBL 23 field trip survey
 
-A narrated, video-style data presentation of a survey of **89 students** about busy lives, eating on the go, snacks, and the gap between knowing and doing.
+A narrated (ElevenLabs v3 voice), video-style data presentation of a survey of **89 students** about busy lives, eating on the go, snacks, and the gap between knowing and doing.
 
 **▶ Watch:** https://korenkov-shared.github.io/food-habits-survey/
 

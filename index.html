@@ -182,7 +182,7 @@ h2 em,h1 em{font-style:italic;color:var(--cream)}
   <div class="kicker">PBL 23 · Field trip survey</div>
   <h1>Changing habits<br><em>around food</em></h1>
   <button id="play" aria-label="Play presentation"><svg viewBox="0 0 24 24"><path d="M6 4l15 8-15 8z"/></svg></button>
-  <p>≈ 3 min · narrated · use ← → to skip, Space to pause</p>
+  <p>≈ 5 min · narrated · sound on 🔊 · use ← → to skip, Space to pause</p>
 </div>
 
 <script src="data.js"></script>
@@ -320,9 +320,46 @@ const SCENES = [
    <p class="muted r d3" style="margin-top:16px">Press ↺ or ← to watch again.</p></div>`},
 ];
 
+/* ---------- narration (ElevenLabs v3 script; tags shape emotion, stripped for captions) ---------- */
+const NARR = [
+ "[warmly] Hi everyone. [short pause] This is what eighty-nine students told us about food... [short pause] busy lives... [pause] and the gap between knowing — and doing.",
+ "[friendly] So, who answered? [short pause] Eighty-nine students — mostly around twenty years old, with an average age of twenty point four. [short pause] Fifty-three men, thirty-four women, and two preferred not to say.",
+ "[curious] And they came from all over campus. [short pause] Almost half study IT, computer science or data... [short pause] the rest are spread across engineering, biotech, and business.",
+ "[sighs] First things first... life is busy. [short pause] On a scale from zero to ten, the average student rated their life seven point four. [emphatic] Seventy-four percent answered seven — or more.",
+ "[thoughtful] Now, look at the four scores side by side. [short pause] Students are busy... and fairly worried about their health. [pause] But their own eating habits? [disappointed] They rate those lowest of all — just five point six out of ten.",
+ "[excited] And here is the strongest pattern in the whole survey! [short pause] The more often students eat on the go... the less healthy their habits. [serious] The correlation is minus zero point seven two. [short pause] That is a strong link.",
+ "[thoughtful] Usually, caring about your health and eating well go together. [short pause] But twelve students — about thirteen percent — [slowly] care a lot about their health... [pause] and still rate their habits five or lower.",
+ "[casual] What does a typical day look like? [short pause] Three meals — although a quarter of students eat only two or fewer... [short pause] [chuckles] plus about two snacks.",
+ "[playfully] Then came the honest part. [short pause] Seventy-nine percent love salty snacks. [laughs] Half think unhealthy food simply tastes better. [short pause] [serious] Forty-three percent have no time to think about eating healthy... [pause] and nineteen percent believe that, at their age, health is not something to worry about.",
+ "[cheerful] But here's the good news! [short pause] Seventy percent want to improve their eating. [short pause] And the students who want change are the ones under the most pressure — busier, and eating on the go far more often.",
+ "[curious] So... what stops them? [short pause] Lack of time comes first — by far. [short pause] Followed by poor planning, convenience food... [short pause] and those cravings for something sweet.",
+ "[softly] In their own words... [pause] deadlines. Long commutes. Shared kitchens. [short pause] And sweets... whenever the stress hits.",
+ "[surprised] And here's the twist: [short pause] students already know the rules! [short pause] Vegetables and fruit. Protein. Regular meals. Water. [pause] [confident] Knowledge is not the bottleneck... time and routine are.",
+ "[interested] There's also a clear difference between men and women. [short pause] Women rate their habits and their health concern higher... [short pause] while men eat on the go much more often.",
+ "[confident] So — three takeaways. [pause] One: time, not knowledge, is the real barrier. [short pause] Two: eating on the go is the habit killer. [short pause] [warmly] And three... the motivation to change is already there.",
+ "[enthusiastic] So what could actually help? [short pause] Healthy grab-and-go food right on campus... [short pause] quick meal-prep skills... smarter snack swaps... [short pause] and simple tools to plan the week. [warmly] Let's make the healthy choice the easy one.",
+ "[warmly] Thank you for watching. [short pause] [smiles] Enjoy your next meal!",
+];
+// Silences longer than ~1.3 s in each clip [start, end]; the player keeps at most ~1.1 s of each.
+const GAPS = [[],[[1.4,5.2],[13.25,15.4]],[[2.75,4.25]],[[2.15,4],[5.05,8.25]],[[3.9,5.35],[10.4,11.85]],[[4.9,7.5],[19.3,21.05]],[[4.55,5.95]],[[3.25,5.15],[11.95,13.4]],[[2.45,4.15],[12.35,14.7],[19.25,20.9]],[[1.4,2.85]],[[2.7,5.45],[8.3,10.45]],[[1.85,3.8],[10.45,12.1]],[[1.15,2.65],[5.8,8.55],[13.7,16.35],[19.35,21.15]],[],[[2.4,4.05],[8.35,10.6],[14.55,17]],[[2.6,4],[13.05,14.4],[16.75,18.2]],[[1.3,2.8]]];
+const KEEP = 1.0, PAD = 0.1;
+SCENES.forEach((s,i)=>{
+  s.cap = NARR[i].replace(/\[[^\]]+\]\s*/g,'').replace(/\s+/g,' ').trim();
+  s.gaps = GAPS[i];
+  s.audio = new Audio(`audio/${String(i+1).padStart(2,'0')}.mp3`); s.audio.preload='auto';
+  s.audio.addEventListener('loadedmetadata',()=>{
+    const cut = s.gaps.reduce((a,[st,en])=>a+Math.max(0,(en-PAD)-(st+KEEP)),0);
+    s.d=Math.max(s.d,Math.ceil(s.audio.duration-cut)+1.5); s.seg&&(s.seg.style.flex=s.d); total=SCENES.reduce((a,x)=>a+x.d,0);
+  });
+});
+function skipGaps(s){
+  const a=s.audio; if(a.paused) return;
+  for(const [st,en] of s.gaps) if(a.currentTime>st+KEEP && a.currentTime<en-PAD){ a.currentTime=en-PAD; break; }
+}
+
 /* ---------- player ---------- */
 const stage = document.getElementById('stage'), cap = document.getElementById('cap'), tl = document.getElementById('tl');
-const total = SCENES.reduce((a,s)=>a+s.d,0);
+let total = SCENES.reduce((a,s)=>a+s.d,0);
 SCENES.forEach((s,i)=>{
   const el = document.createElement('section'); el.className='scene'; el.setAttribute('aria-label',s.t); stage.appendChild(el); s.el=el;
   const seg = document.createElement('div'); seg.className='seg'; seg.style.flex=s.d; seg.innerHTML='<i></i>'; seg.dataset.tip=`${i+1}. ${s.t}`; tl.appendChild(seg); s.seg=seg;
@@ -339,13 +376,12 @@ function animate(el){
     requestAnimationFrame(step);
   });
 }
-function speak(text){
-  if(!('speechSynthesis' in window)) return;
-  speechSynthesis.cancel(); if(!voice||!playing) return;
-  const u=new SpeechSynthesisUtterance(text); u.rate=1.0; u.lang='en-GB';
-  const v=speechSynthesis.getVoices().find(v=>/en-(GB|US)/.test(v.lang)&&/natural|neural|google|aria|jenny|sonia|libby/i.test(v.name))||speechSynthesis.getVoices().find(v=>/^en/.test(v.lang));
-  if(v)u.voice=v; speechSynthesis.speak(u);
+function stopAudio(){ SCENES.forEach(s=>{ if(!s.audio.paused) s.audio.pause(); }); }
+function speak(){
+  stopAudio(); const a=SCENES[cur].audio; a.currentTime=0;
+  if(voice&&playing) a.play().catch(()=>{});
 }
+const speaking = () => voice && !SCENES[cur].audio.paused && !SCENES[cur].audio.ended;
 function go(i){
   i=Math.max(0,Math.min(SCENES.length-1,i));
   if(cur>=0){SCENES[cur].el.classList.remove('on','go');}
@@ -355,16 +391,15 @@ function go(i){
   requestAnimationFrame(()=>requestAnimationFrame(()=>{s.el.classList.add('go'); setTimeout(()=>animate(s.el),250);}));
   cap.textContent=s.cap; document.getElementById('title').textContent=`${i+1}/${SCENES.length} · ${s.t}`;
   SCENES.forEach((x,k)=>{x.seg.classList.toggle('done',k<i); x.seg.querySelector('i').style.width=k<i?'100%':'0';});
-  elapsed=0; t0=performance.now(); speak(s.cap);
+  elapsed=0; t0=performance.now(); speak();
 }
 function tick(n){
   if(playing){
-    const s=SCENES[cur], e=elapsed+(n-t0)/1000;
+    const s=SCENES[cur], e=elapsed+(n-t0)/1000; skipGaps(s);
     s.seg.querySelector('i').style.width=Math.min(100,100*e/s.d)+'%';
     const before=SCENES.slice(0,cur).reduce((a,x)=>a+x.d,0);
     document.getElementById('time').textContent=`${fmt(before+Math.min(e,s.d))} / ${fmt(total)}`;
-    const speaking=voice&&'speechSynthesis' in window&&speechSynthesis.speaking;
-    if(e>=s.d && !speaking){ if(cur<SCENES.length-1) go(cur+1); else setPlay(false); }
+    if(e>=s.d && !speaking()){ if(cur<SCENES.length-1) go(cur+1); else setPlay(false); }
   }
   raf=requestAnimationFrame(tick);
 }
@@ -372,13 +407,14 @@ function setPlay(p){
   if(p&&!playing){t0=performance.now(); if(cur===SCENES.length-1&&elapsed>=SCENES[cur].d)go(0);}
   if(!p&&playing){elapsed+=(performance.now()-t0)/1000;}
   playing=p; document.getElementById('bPlay').textContent=p?'❚❚':'▶';
-  if('speechSynthesis' in window){ if(p){ if(speechSynthesis.paused)speechSynthesis.resume(); else if(!speechSynthesis.speaking)speak(SCENES[cur].cap);} else speechSynthesis.pause(); }
+  const a=SCENES[cur].audio;
+  if(p){ if(voice&&!a.ended) a.play().catch(()=>{}); } else a.pause();
 }
 document.getElementById('play').onclick=()=>{document.getElementById('start').classList.add('gone'); playing=true; go(0);};
 document.getElementById('bPlay').onclick=()=>setPlay(!playing);
 document.getElementById('bPrev').onclick=()=>go(cur-1);
 document.getElementById('bNext').onclick=()=>go(cur+1);
-document.getElementById('bVoice').onclick=e=>{voice=!voice; e.currentTarget.setAttribute('aria-pressed',voice); if(!voice&&'speechSynthesis' in window)speechSynthesis.cancel();};
+document.getElementById('bVoice').onclick=e=>{voice=!voice; e.currentTarget.setAttribute('aria-pressed',voice); SCENES.forEach(s=>s.audio.muted=!voice); if(voice&&playing&&SCENES[cur].audio.paused&&!SCENES[cur].audio.ended)SCENES[cur].audio.play().catch(()=>{});};
 document.getElementById('bCap').onclick=e=>{const on=document.body.classList.toggle('nocap'); e.currentTarget.setAttribute('aria-pressed',!on);};
 document.getElementById('bFs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
 addEventListener('keydown',e=>{
@@ -386,7 +422,6 @@ addEventListener('keydown',e=>{
   if(e.key===' '){e.preventDefault(); setPlay(!playing);} else if(e.key==='ArrowRight')go(cur+1); else if(e.key==='ArrowLeft')go(cur-1);
   else if(e.key==='f')document.getElementById('bFs').click(); else if(e.key==='c')document.getElementById('bCap').click(); else if(e.key==='v')document.getElementById('bVoice').click();
 });
-if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=()=>{};
 requestAnimationFrame(tick);
 
 /* tooltip */
