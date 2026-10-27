@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changing Habits Around Food</title>
+<meta name="description" content="A narrated video-style presentation of the PBL 23 field-trip survey: 89 students on busy lives, snacks and healthy eating.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f0e0c; --surface:#1a1917; --surface-2:#23211e; --line:#34312c;
+  --ink:#f3eee6; --ink-2:#c9c1b4; --ink-3:#8f877a;
+  --cream:#efe4d6; --accent:#d95926; --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --font-d:'Fraunces',Georgia,serif; --font-b:'Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--ink);font-family:var(--font-b);overflow:hidden}
+body{-webkit-font-smoothing:antialiased}
+#bg{position:fixed;inset:0;z-index:0}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.06;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.65))}
+
+/* stage */
+#stage{position:fixed;inset:0 0 150px 0;z-index:2}
+body.nocap #stage{bottom:86px}
+.scene{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:clamp(20px,5vw,90px) clamp(16px,7vw,140px);opacity:0;visibility:hidden;
+  transition:opacity .9s ease,visibility 0s .9s}
+.scene.on{opacity:1;visibility:visible;transition:opacity .9s ease}
+.kicker{font-size:clamp(11px,1vw,14px);letter-spacing:.22em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:14px}
+h1,h2{font-family:var(--font-d);font-weight:300;line-height:1.02;letter-spacing:-.02em}
+h1{font-size:clamp(44px,8.5vw,140px)}
+h2{font-size:clamp(30px,4.6vw,72px);margin-bottom:clamp(14px,2.5vh,30px)}
+h2 em,h1 em{font-style:italic;color:var(--cream)}
+.lead{font-size:clamp(15px,1.5vw,22px);color:var(--ink-2);max-width:60ch;line-height:1.5}
+.muted{color:var(--ink-3);font-size:clamp(12px,1vw,14px)}
+.row{display:flex;gap:clamp(18px,4vw,70px);align-items:center;flex-wrap:wrap}
+.col{flex:1 1 300px;min-width:0}
+.hero{font-family:var(--font-d);font-weight:500;font-size:clamp(70px,13vw,220px);line-height:.9;letter-spacing:-.04em;color:var(--cream)}
+.hero small{font-size:.32em;color:var(--ink-3);font-weight:300;letter-spacing:0}
+
+/* reveal animations */
+.r{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.scene.go .r{opacity:1;transform:none}
+.scene.go .r.d1{transition-delay:.25s}.scene.go .r.d2{transition-delay:.5s}.scene.go .r.d3{transition-delay:.8s}
+.scene.go .r.d4{transition-delay:1.1s}.scene.go .r.d5{transition-delay:1.4s}
+
+/* bars */
+.bars{display:flex;flex-direction:column;gap:10px;width:100%}
+.bar{display:grid;grid-template-columns:minmax(110px,32%) 1fr 54px;align-items:center;gap:12px;font-size:clamp(12px,1.15vw,16px)}
+.bar .lab{color:var(--ink-2);text-align:right;line-height:1.2}
+.bar .trk{height:clamp(14px,2vh,22px);position:relative}
+.bar .fill{position:absolute;inset:0 auto 0 0;width:0;border-radius:0 4px 4px 0;background:var(--s1);
+  transition:width 1.4s cubic-bezier(.2,.7,.2,1)}
+.bar .val{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600}
+.bar:hover .fill{filter:brightness(1.2)}
+
+/* histogram */
+.hist{display:flex;align-items:flex-end;gap:2px;height:clamp(140px,30vh,300px);width:100%}
+.hist .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.hist .b{width:100%;height:0;background:var(--s1);border-radius:4px 4px 0 0;transition:height 1.2s cubic-bezier(.2,.7,.2,1)}
+.hist .b.dim{background:#3a4a5e}
+.hist .x{font-size:12px;color:var(--ink-3);margin-top:6px}
+.hist .n{font-size:12px;color:var(--ink-2);margin-bottom:4px;opacity:0;transition:opacity .6s 1s}
+.scene.go .hist .n{opacity:1}
+
+/* dots grid */
+.dots{display:grid;grid-template-columns:repeat(15,1fr);gap:clamp(4px,.6vw,9px);max-width:520px}
+.dots i{aspect-ratio:1;border-radius:50%;background:#3b3833;transform:scale(0);transition:transform .5s cubic-bezier(.3,1.6,.5,1),background .6s}
+.scene.go .dots i{transform:scale(1)}
+.dots i.hi{background:var(--accent)}
+
+/* rings */
+.rings{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:clamp(16px,3vw,40px);width:100%}
+.ring{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.ring svg{width:clamp(110px,14vw,190px);height:auto;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .t{stroke:#2e2b27}.ring .p{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1.6s cubic-bezier(.2,.7,.2,1)}
+.ring .w{position:relative;display:grid;place-items:center}
+.ring .pct{position:absolute;font-family:var(--font-d);font-size:clamp(28px,3.2vw,50px)}
+.ring p{color:var(--ink-2);font-size:clamp(13px,1.1vw,16px);max-width:24ch;line-height:1.4}
+
+/* scatter */
+.chart svg{width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--ink-3);font-size:12px;font-family:var(--font-b)}
+.chart .grid{stroke:#2a2824;stroke-width:1}
+.chart .dot{fill:var(--s1);stroke:var(--bg);stroke-width:2;opacity:0;transition:opacity .5s}
+.scene.go .chart .dot{opacity:.85}
+.chart .trend{stroke:var(--accent);stroke-width:3;stroke-dasharray:900;stroke-dashoffset:900;transition:stroke-dashoffset 2s 1.2s ease}
+.scene.go .chart .trend{stroke-dashoffset:0}
+
+/* legend */
+.legend{display:flex;gap:18px;font-size:13px;color:var(--ink-2);margin:6px 0 14px}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend span::before{content:"";width:12px;height:12px;border-radius:3px;background:var(--c)}
+
+/* stacked */
+.stack{display:flex;gap:2px;height:42px;width:100%}
+.stack div{height:100%;width:0;transition:width 1.4s cubic-bezier(.2,.7,.2,1);display:flex;align-items:center;padding-left:10px;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden}
+.stack div:first-child{border-radius:4px 0 0 4px}.stack div:last-child{border-radius:0 4px 4px 0}
+
+/* cards & quotes */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:clamp(12px,2vw,24px);width:100%}
+.card{background:rgba(35,33,30,.75);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,2vw,28px);backdrop-filter:blur(6px)}
+.card .num{font-family:var(--font-d);font-size:clamp(34px,4vw,60px);color:var(--accent);line-height:1}
+.card h3{font-family:var(--font-d);font-weight:500;font-size:clamp(18px,1.7vw,26px);margin:10px 0 8px}
+.card p{color:var(--ink-2);font-size:clamp(13px,1.1vw,16px);line-height:1.5}
+.quotes{columns:3 260px;column-gap:clamp(14px,2vw,28px)}
+.quote{break-inside:avoid;margin-bottom:clamp(12px,2vw,24px);font-family:var(--font-d);font-style:italic;font-size:clamp(16px,1.6vw,24px);line-height:1.35;color:var(--cream);border-left:2px solid var(--accent);padding-left:16px}
+
+/* intro */
+.intro .meta{display:flex;gap:28px;margin-top:34px;flex-wrap:wrap}
+.intro .meta div{font-size:13px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase}
+.intro .meta b{display:block;font-family:var(--font-d);font-size:30px;color:var(--ink);letter-spacing:0;text-transform:none;font-weight:500}
+
+/* captions */
+#cap{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);z-index:5;max-width:min(900px,92vw);text-align:center;
+  font-size:clamp(14px,1.35vw,19px);line-height:1.45;background:rgba(10,9,8,.72);padding:10px 18px;border-radius:10px;color:#fff;
+  transition:opacity .4s;pointer-events:none}
+#cap:empty,body.nocap #cap{opacity:0}
+
+/* player bar */
+#bar{position:fixed;left:0;right:0;bottom:0;height:86px;z-index:6;display:flex;flex-direction:column;justify-content:center;gap:10px;
+  padding:0 clamp(16px,3vw,40px);background:linear-gradient(to top,rgba(10,9,8,.96),rgba(10,9,8,.6))}
+#tl{display:flex;gap:3px;height:14px;align-items:center;cursor:pointer}
+#tl .seg{flex:1;height:4px;background:#3a3631;border-radius:2px;position:relative;overflow:hidden;transition:height .2s}
+#tl:hover .seg{height:8px}
+#tl .seg i{position:absolute;inset:0;width:0;background:var(--accent)}
+#tl .seg.done i{width:100%}
+.ctrls{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2)}
+.ctrls button{background:none;border:1px solid transparent;color:var(--ink);font:inherit;cursor:pointer;height:34px;min-width:34px;padding:0 10px;border-radius:8px;display:inline-flex;align-items:center;gap:6px}
+.ctrls button:hover{background:#2a2824}
+.ctrls button[aria-pressed="false"]{color:var(--ink-3)}
+.ctrls .sp{flex:1}
+#time{font-variant-numeric:tabular-nums}
+#title{color:var(--ink);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40vw}
+#tip{position:fixed;z-index:9;pointer-events:none;background:#000;color:#fff;font-size:12px;padding:6px 9px;border-radius:6px;opacity:0;transition:opacity .15s}
+
+/* start overlay */
+#start{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;
+  background:radial-gradient(circle at 50% 40%,rgba(217,89,38,.18),rgba(15,14,12,.92) 60%);transition:opacity .8s}
+#start.gone{opacity:0;pointer-events:none}
+#start h1{text-align:center;font-size:clamp(40px,7vw,110px)}
+#play{width:110px;height:110px;border-radius:50%;border:none;background:var(--accent);cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 0 0 0 rgba(217,89,38,.6);animation:pulse 2.2s infinite}
+#play svg{width:40px;margin-left:6px;fill:#fff}
+@keyframes pulse{70%{box-shadow:0 0 0 30px rgba(217,89,38,0)}100%{box-shadow:0 0 0 0 rgba(217,89,38,0)}}
+#start p{color:var(--ink-3);font-size:14px;text-align:center;padding:0 16px}
+@media (max-width:640px){
+  .bar{grid-template-columns:96px 1fr 44px}
+  #title{display:none}
+  .dots{grid-template-columns:repeat(13,1fr)}
+  .ctrls .hide-s{display:none}
+  .scene{justify-content:flex-start;padding-top:28px;overflow-y:auto}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas><div class="grain"></div><div class="vignette"></div>
+<main id="stage"></main>
+<div id="cap" aria-live="polite"></div>
+<div id="tip"></div>
+<nav id="bar">
+  <div id="tl" role="slider" aria-label="Presentation timeline"></div>
+  <div class="ctrls">
+    <button id="bPrev" title="Previous (←)">⏮</button>
+    <button id="bPlay" title="Play / pause (Space)">❚❚</button>
+    <button id="bNext" title="Next (→)">⏭</button>
+    <span id="time">0:00</span>
+    <span id="title"></span>
+    <span class="sp"></span>
+    <button id="bVoice" aria-pressed="true" title="Voice narration (V)">🔊 <span class="hide-s">Voice</span></button>
+    <button id="bCap" aria-pressed="true" title="Captions (C)">CC</button>
+    <button id="bFs" title="Fullscreen (F)">⛶</button>
+  </div>
+</nav>
+<div id="start">
+  <div class="kicker">PBL 23 · Field trip survey</div>
+  <h1>Changing habits<br><em>around food</em></h1>
+  <button id="play" aria-label="Play presentation"><svg viewBox="0 0 24 24"><path d="M6 4l15 8-15 8z"/></svg></button>
+  <p>≈ 3 min · narrated · use ← → to skip, Space to pause</p>
+</div>
+
+<script src="data.js"></script>
+<script>
+const S = window.SURVEY, N = S.n;
+const pct = (a,b=N) => Math.round(100*a/b);
+const fmt = (s) => `${Math.floor(s/60)}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+
+/* ---------- reusable chart builders ---------- */
+function bars(items, max, color){
+  return `<div class="bars">${items.map(([l,v,t])=>`<div class="bar" data-tip="${t||l+': '+v}"><div class="lab">${l}</div>
+  <div class="trk"><div class="fill" data-w="${100*v/max}" style="background:${color||'var(--s1)'}"></div></div><div class="val">${v}</div></div>`).join('')}</div>`;
+}
+function hist(dist, labels, hiFrom, unit){
+  const m = Math.max(...dist);
+  return `<div class="hist">${dist.map((v,i)=>`<div class="c" data-tip="${labels[i]}: ${v} ${unit}">
+    <div class="n">${v||''}</div><div class="b ${hiFrom!=null && i<hiFrom?'dim':''}" data-h="${100*v/m}"></div><div class="x">${labels[i]}</div></div>`).join('')}</div>`;
+}
+function dots(n, hi, tipHi, tipLo){
+  return `<div class="dots">${Array.from({length:n},(_,i)=>`<i class="${i<hi?'hi':''}" data-tip="${i<hi?tipHi:tipLo}" style="transition-delay:${(i*14)}ms"></i>`).join('')}</div>`;
+}
+function ring(p, text){
+  const C = 2*Math.PI*52;
+  return `<div class="ring" data-tip="${p}% — ${text}"><div class="w"><svg viewBox="0 0 120 120"><circle class="t" cx="60" cy="60" r="52"/>
+  <circle class="p" cx="60" cy="60" r="52" stroke-dasharray="${C}" stroke-dashoffset="${C}" data-off="${C*(1-p/100)}"/></svg>
+  <div class="pct" data-count="${p}" data-suf="%">0%</div></div><p>${text}</p></div>`;
+}
+function scatter(){
+  const W=560,H=380,L=40,B=40, xs=v=>L+v*(W-L-10)/10, ys=v=>H-B-v*(H-B-10)/10;
+  const pts=S.scatter.map(([b,g,h],i)=>{const jx=((i*37)%11-5)/18, jy=((i*53)%11-5)/18; return [g+jx,h+jy,g,h];});
+  const xm=pts.reduce((a,p)=>a+p[2],0)/pts.length, ym=pts.reduce((a,p)=>a+p[3],0)/pts.length;
+  const sl=pts.reduce((a,p)=>a+(p[2]-xm)*(p[3]-ym),0)/pts.reduce((a,p)=>a+(p[2]-xm)**2,0), ic=ym-sl*xm;
+  let g='';
+  for(let i=0;i<=10;i+=2){g+=`<line class="grid" x1="${L}" x2="${W-10}" y1="${ys(i)}" y2="${ys(i)}"/><text x="${L-10}" y="${ys(i)+4}" text-anchor="end">${i}</text><text x="${xs(i)}" y="${H-B+22}" text-anchor="middle">${i}</text>`;}
+  g+=`<text x="${(W+L)/2}" y="${H-2}" text-anchor="middle">How often I eat “on the go” →</text>`;
+  g+=`<text transform="translate(12 ${(H-B)/2}) rotate(-90)" text-anchor="middle">Healthy habits →</text>`;
+  g+=pts.map((p,i)=>`<circle class="dot" r="6" cx="${xs(p[0])}" cy="${ys(p[1])}" style="transition-delay:${i*12}ms" data-tip="On the go ${p[2]} · Habits ${p[3]}"/>`).join('');
+  g+=`<line class="trend" x1="${xs(0)}" y1="${ys(ic)}" x2="${xs(10)}" y2="${ys(ic+sl*10)}"/>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter of eating on the go versus healthy habits, r = ${S.corr.habits_onthego}">${g}</svg></div>`;
+}
+function paired(series, keys, labels, colors){
+  const lg = `<div class="legend">${series.map((s,i)=>`<span style="--c:${colors[i]}">${s.name}</span>`).join('')}</div>`;
+  const rows = keys.map((k,ki)=>`<div style="margin-bottom:12px"><div class="muted" style="margin-bottom:5px">${labels[ki]}</div>${
+    series.map((s,i)=>`<div class="bar" style="grid-template-columns:0 1fr 44px;gap:10px;margin-bottom:3px" data-tip="${s.name} — ${labels[ki]}: ${s.v[k]}/10"><div></div>
+    <div class="trk"><div class="fill" data-w="${s.v[k]*10}" style="background:${colors[i]}"></div></div><div class="val">${s.v[k]}</div></div>`).join('')}</div>`).join('');
+  return lg+rows;
+}
+
+/* ---------- scenes ---------- */
+const sc = S.scales, busyHi = sc.busy.dist.slice(7).reduce((a,b)=>a+b,0);
+const scale = ['0','1','2','3','4','5','6','7','8','9','10'];
+const imp = S.improve_profile, gp = S.gender_profile;
+const SCENES = [
+ {t:'Intro', d:9, cap:`This is what eighty-nine students told us about food, busy lives, and the gap between knowing and doing.`,
+  h:`<div class="intro"><div class="kicker r">PBL 23 · Field trip survey · Lodz University of Technology</div>
+   <h1 class="r d1">Changing habits<br><em>around food</em></h1>
+   <p class="lead r d2" style="margin-top:22px">What students told us about busy lives, snacks — and the gap between knowing and doing.</p>
+   <div class="meta r d3"><div><b>${N}</b>respondents</div><div><b>${Object.keys(S.faculties).length}</b>faculty areas</div><div><b>15</b>questions</div></div></div>`},
+ {t:'Who answered', d:11, cap:`${N} students took part — mostly around twenty years old, with an average age of ${S.age.mean}. ${S.gender.M} men, ${S.gender.F} women, and ${S.gender.X} preferred not to say.`,
+  h:`<div class="kicker r">Chapter 1 · The respondents</div><h2 class="r d1">Meet the <em>${N}</em></h2>
+   <div class="row"><div class="col r d2"><div class="muted" style="margin-bottom:8px">Gender</div>
+    <div class="stack"><div data-w="${100*S.gender.M/N}" style="background:var(--s1)" data-tip="Male: ${S.gender.M}">${S.gender.M} male</div>
+    <div data-w="${100*S.gender.F/N}" style="background:var(--s2)" data-tip="Female: ${S.gender.F}">${S.gender.F} female</div>
+    <div data-w="${100*S.gender.X/N}" style="background:#6b655c" data-tip="Prefer not to say: ${S.gender.X}"></div></div>
+    <div class="legend" style="margin-top:10px"><span style="--c:var(--s1)">Male</span><span style="--c:var(--s2)">Female</span><span style="--c:#6b655c">Prefer not to say</span></div>
+    <div class="hero" style="margin-top:20px"><span data-count="${S.age.mean}" data-dec="1">0</span><small> avg. age</small></div></div>
+    <div class="col r d3"><div class="muted" style="margin-bottom:8px">Age distribution</div>${hist(Object.values(S.age.dist),Object.keys(S.age.dist),null,'students')}</div></div>`},
+ {t:'Where they study', d:9, cap:`Respondents came from across the university. Almost half study IT, computer science or data — the rest are spread across engineering, biotech and business.`,
+  h:`<div class="kicker r">Chapter 1 · The respondents</div><h2 class="r d1">From every <em>corner</em> of campus</h2>
+   <div class="r d2" style="max-width:900px">${bars(Object.entries(S.faculties).map(([k,v])=>[k,v,`${k}: ${v} students (${pct(v)}%)`]),Math.max(...Object.values(S.faculties)))}</div>
+   <p class="muted r d3" style="margin-top:14px">Majors grouped into faculty areas.</p>`},
+ {t:'Life is busy', d:10, cap:`First, life is busy. On a scale from zero to ten, the average student rated their life ${sc.busy.mean.toFixed(1)}. ${pct(busyHi)} percent answered seven or more.`,
+  h:`<div class="kicker r">Chapter 2 · The pressure</div><h2 class="r d1">Life runs at <em>full speed</em></h2>
+   <div class="row"><div class="col r d2" style="flex:0 1 auto"><div class="hero"><span data-count="${sc.busy.mean}" data-dec="1">0</span><small>/10</small></div>
+    <p class="lead">average “how busy is your life” score — <b style="color:var(--ink)">${pct(busyHi)}%</b> said 7 or higher.</p></div>
+    <div class="col r d3">${hist(sc.busy.dist,scale,7,'students')}<p class="muted" style="margin-top:8px">Busyness score (0–10) · bright bars = 7+</p></div></div>`},
+ {t:'Four scores', d:11, cap:`Compare the four scales. Students are busy and fairly concerned about their health — but they rate their own eating habits lowest of all, at ${sc.habits.mean.toFixed(1)} out of ten.`,
+  h:`<div class="kicker r">Chapter 2 · The pressure</div><h2 class="r d1">Concern runs <em>ahead</em> of habits</h2>
+   <div class="r d2" style="max-width:900px">${bars([['How busy is my life',sc.busy.mean.toFixed(1)],['How concerned I am with my health',sc.concern.mean.toFixed(1)],['How often I eat “on the go”',sc.onthego.mean.toFixed(1)],['How healthy my eating habits are',sc.habits.mean.toFixed(1)]].map(([l,v])=>[l,v,`${l}: ${v}/10 average`]),10)}</div>
+   <p class="muted r d3" style="margin-top:14px">Average self-rating on a 0–10 scale, n = ${N}.</p>`},
+ {t:'The strongest signal', d:13, cap:`The strongest pattern in the whole survey: the more often students eat on the go, the less healthy their habits. The correlation is minus ${Math.abs(S.corr.habits_onthego)} — a strong link.`,
+  h:`<div class="kicker r">Chapter 3 · The pattern</div>
+   <div class="row"><div class="col r d1" style="flex:1 1 280px"><h2>Eating <em>on the go</em> erodes habits</h2>
+    <div class="hero" style="font-size:clamp(60px,9vw,150px)">r = ${S.corr.habits_onthego}</div>
+    <p class="lead">Each dot is a student. Busier lives also mean more eating on the run (r = ${S.corr.busy_onthego}).</p></div>
+    <div class="col r d2" style="flex:1.3 1 320px">${scatter()}</div></div>`},
+ {t:'Knowing vs doing', d:11, cap:`Health concern and good habits usually go together. But ${S.gap.count} students — about ${S.gap.pct} percent — care a lot about their health, yet rate their habits five or lower.`,
+  h:`<div class="kicker r">Chapter 3 · The pattern</div><h2 class="r d1">The <em>knowing–doing</em> gap</h2>
+   <div class="row"><div class="col r d2">${dots(N,S.gap.count,'Concern ≥ 7 but habits ≤ 5','Other respondent')}</div>
+    <div class="col r d3"><div class="hero"><span data-count="${S.gap.count}">0</span><small> students</small></div>
+    <p class="lead">rate their health concern <b style="color:var(--ink)">7+</b> but their own habits <b style="color:var(--ink)">5 or less</b>. Across everyone, concern and habits correlate at r = ${S.corr.concern_habits}.</p></div></div>`},
+ {t:'A day on the plate', d:11, cap:`A typical day: three meals — though a quarter of students eat only two or fewer — plus about two snacks.`,
+  h:`<div class="kicker r">Chapter 4 · The routine</div><h2 class="r d1">A day <em>on the plate</em></h2>
+   <div class="row" style="align-items:flex-start"><div class="col r d2"><div class="hero" style="font-size:clamp(56px,8vw,130px)"><span data-count="${S.meals.mean}" data-dec="1">0</span><small> meals / day</small></div>
+    ${hist(Object.values(S.meals.dist),Object.keys(S.meals.dist),null,'students')}</div>
+    <div class="col r d3"><div class="hero" style="font-size:clamp(56px,8vw,130px)"><span data-count="${S.snacks.mean}" data-dec="1">0</span><small> snacks / day</small></div>
+    ${hist(Object.values(S.snacks.dist),Object.keys(S.snacks.dist),null,'students')}</div></div>
+   <p class="muted r d4" style="margin-top:10px">Snacks: ${S.snacks.n} numeric answers (weekly or vague answers excluded).</p>`},
+ {t:'Honest answers', d:12, cap:`Then the honest part. ${S.yn.salty} percent love salty snacks. Half think unhealthy food simply tastes better. ${S.yn.notime} percent have no time to think about eating healthy — and ${S.yn.noworry} percent believe that at their age, health is not a worry.`,
+  h:`<div class="kicker r">Chapter 4 · The routine</div><h2 class="r d1">Do you <em>agree</em>?</h2>
+   <div class="rings r d2">${ring(S.yn.salty,'“I like the taste of potato chips and other salty snacks”')}${ring(S.yn.tastier,'“Most unhealthy foods taste better than healthy foods”')}${ring(S.yn.notime,'“I don’t have time to think about eating healthy”')}${ring(S.yn.noworry,'“At my age I don’t need to worry about my health”')}</div>`},
+ {t:'Ready to change', d:12, cap:`The good news: ${S.yn.improve} percent want to improve their eating. And the students who want change are the ones under the most pressure — busier, and eating on the go far more often.`,
+  h:`<div class="kicker r">Chapter 5 · The motivation</div><h2 class="r d1"><em>7 in 10</em> want to change</h2>
+   <div class="row" style="align-items:flex-start"><div class="col r d2">${dots(N,imp.nyes,'Wants to improve eating habits','Does not want to change')}
+    <p class="lead" style="margin-top:14px"><b style="color:var(--ink)">${imp.nyes}</b> of ${N} answered “Yes”.</p></div>
+    <div class="col r d3">${paired([{name:`Want to improve (${imp.nyes})`,v:imp.yes},{name:`Don’t (${imp.nno})`,v:imp.no}],['busy','onthego','habits'],['Busy life','Eating on the go','Healthy habits'],['var(--s2)','var(--s1)'])}</div></div>`},
+ {t:'What gets in the way', d:12, cap:`So what stops them? Lack of time comes first by far, followed by poor planning, convenience food and cravings for sweets.`,
+  h:`<div class="kicker r">Chapter 5 · The motivation</div><h2 class="r d1">What gets <em>in the way</em></h2>
+   <div class="r d2" style="max-width:920px">${bars(Object.entries(S.barriers).map(([k,v])=>[k,v,`${k}: mentioned by ${v} of ${S.barriers_n} students`]),Math.max(...Object.values(S.barriers)),'var(--s2)')}</div>
+   <p class="muted r d3" style="margin-top:14px">Open answers from ${S.barriers_n} students, coded into themes (one answer can mention several). ${S.satisfied_n} more said they are happy with their diet.</p>`},
+ {t:'In their own words', d:13, cap:`In their own words: deadlines, commutes, shared kitchens, and sweets when stress hits.`,
+  h:`<div class="kicker r">Chapter 5 · The motivation</div><h2 class="r d1">In their <em>own words</em></h2>
+   <div class="quotes">${["I know what to eat but do not always plan my shopping.","Combining classes with a part-time job leaves little time to cook.","I buy sweets when I am stressed, even after planning meals.","Project deadlines and a shared kitchen make cooking inconvenient.","Food delivery is easier than cooking after a long day.","I need portable meals because I am away from home most of the day.","Cheap fast food near campus.","I sometimes choose familiar ready meals because Polish food labels take time to understand."].map((q,i)=>`<div class="quote r d${(i%5)+1}">“${q}”</div>`).join('')}</div>`},
+ {t:'They know the rules', d:12, cap:`And here is the twist: students already know the rules. Vegetables and fruit, protein, regular meals, water. Knowledge is not the bottleneck — time and routine are.`,
+  h:`<div class="kicker r">Chapter 6 · The knowledge</div><h2 class="r d1">They already <em>know the rules</em></h2>
+   <div class="r d2" style="max-width:920px">${bars(Object.entries(S.knowledge).map(([k,v])=>[k,v,`${k}: mentioned by ${v} of ${S.knowledge_n}`]),Math.max(...Object.values(S.knowledge)),'var(--s3)')}</div>
+   <p class="muted r d3" style="margin-top:14px">“What is your general knowledge about healthy eating?” — ${S.knowledge_n} answers, coded into themes.</p>`},
+ {t:'Men vs women', d:11, cap:`A clear gender difference: women rate their habits and health concern higher, while men eat on the go much more often.`,
+  h:`<div class="kicker r">Chapter 6 · The knowledge</div><h2 class="r d1">Men and women <em>eat differently</em></h2>
+   <div class="r d2" style="max-width:900px">${paired([{name:`Women (${S.gender.F})`,v:gp.F},{name:`Men (${S.gender.M})`,v:gp.M}],['habits','concern','onthego','busy'],['Healthy habits','Health concern','Eating on the go','Busy life'],['var(--s2)','var(--s1)'])}</div>`},
+ {t:'Takeaways', d:13, cap:`Three takeaways. Time, not knowledge, is the real barrier. Eating on the go is the habit killer. And the motivation to change is already there.`,
+  h:`<div class="kicker r">Conclusions</div><h2 class="r d1">Three <em>takeaways</em></h2>
+   <div class="cards"><div class="card r d2"><div class="num">${pct(S.barriers['Lack of time / busy schedule'],S.barriers_n)}%</div><h3>Time, not knowledge</h3><p>Of students naming a barrier, this share cited lack of time — the #1 reason — while nearly every student could name the basics of healthy eating.</p></div>
+   <div class="card r d3"><div class="num">r ${S.corr.habits_onthego}</div><h3>On-the-go is the habit killer</h3><p>The strongest relationship in the data: more eating on the run, less healthy habits.</p></div>
+   <div class="card r d4"><div class="num">${S.yn.improve}%</div><h3>Motivation is already there</h3><p>Most students want to improve — they need easier options, not more lectures.</p></div></div>`},
+ {t:'Ideas for change', d:13, cap:`So what could help? Healthy grab-and-go food on campus, quick meal-prep skills, smarter snack swaps, and simple planning tools.`,
+  h:`<div class="kicker r">Recommendations</div><h2 class="r d1">Make the healthy choice <em>the easy one</em></h2>
+   <div class="cards"><div class="card r d2"><h3>🥪 Grab-and-go, but healthy</h3><p>Portable, affordable meals near labs and lecture halls — where on-the-go eating actually happens.</p></div>
+   <div class="card r d3"><h3>⏱ 15-minute meal prep</h3><p>Short workshops on cooking fast in shared dorm kitchens on a student budget.</p></div>
+   <div class="card r d4"><h3>🥜 Smart snack swaps</h3><p>${S.yn.salty}% love salty snacks: offer nuts, fruit, skyr and protein options instead of chips.</p></div>
+   <div class="card r d5"><h3>📝 Plan once, eat well all week</h3><p>Shopping-list templates and a label-reading guide for international students.</p></div></div>`},
+ {t:'Thank you', d:10, cap:`Thank you for watching.`,
+  h:`<div class="intro"><div class="kicker r">PBL 23 · Changing habits around food</div><h1 class="r d1">Thank <em>you</em></h1>
+   <p class="lead r d2" style="margin-top:22px">Method: paper survey during the field trip, ${N} respondents. Four 0–10 self-rating scales, five yes/no statements, and two open questions coded into themes by keyword.</p>
+   <p class="muted r d3" style="margin-top:16px">Press ↺ or ← to watch again.</p></div>`},
+];
+
+/* ---------- player ---------- */
+const stage = document.getElementById('stage'), cap = document.getElementById('cap'), tl = document.getElementById('tl');
+const total = SCENES.reduce((a,s)=>a+s.d,0);
+SCENES.forEach((s,i)=>{
+  const el = document.createElement('section'); el.className='scene'; el.setAttribute('aria-label',s.t); stage.appendChild(el); s.el=el;
+  const seg = document.createElement('div'); seg.className='seg'; seg.style.flex=s.d; seg.innerHTML='<i></i>'; seg.dataset.tip=`${i+1}. ${s.t}`; tl.appendChild(seg); s.seg=seg;
+  seg.onclick=()=>go(i);
+});
+let cur=-1, t0=0, elapsed=0, playing=false, voice=true, raf;
+function animate(el){
+  el.querySelectorAll('[data-w]').forEach(e=>e.style.width=e.dataset.w+'%');
+  el.querySelectorAll('[data-h]').forEach(e=>e.style.height=e.dataset.h+'%');
+  el.querySelectorAll('[data-off]').forEach(e=>e.style.strokeDashoffset=e.dataset.off);
+  el.querySelectorAll('[data-count]').forEach(e=>{
+    const to=+e.dataset.count, dec=+(e.dataset.dec||0), suf=e.dataset.suf||'', st=performance.now();
+    const step=n=>{const k=Math.min(1,(n-st)/1600), v=to*(1-Math.pow(1-k,3)); e.textContent=v.toFixed(dec)+suf; if(k<1)requestAnimationFrame(step)};
+    requestAnimationFrame(step);
+  });
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel(); if(!voice||!playing) return;
+  const u=new SpeechSynthesisUtterance(text); u.rate=1.0; u.lang='en-GB';
+  const v=speechSynthesis.getVoices().find(v=>/en-(GB|US)/.test(v.lang)&&/natural|neural|google|aria|jenny|sonia|libby/i.test(v.name))||speechSynthesis.getVoices().find(v=>/^en/.test(v.lang));
+  if(v)u.voice=v; speechSynthesis.speak(u);
+}
+function go(i){
+  i=Math.max(0,Math.min(SCENES.length-1,i));
+  if(cur>=0){SCENES[cur].el.classList.remove('on','go');}
+  cur=i; const s=SCENES[i];
+  s.el.innerHTML=s.h; void s.el.offsetWidth;
+  s.el.classList.add('on');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{s.el.classList.add('go'); setTimeout(()=>animate(s.el),250);}));
+  cap.textContent=s.cap; document.getElementById('title').textContent=`${i+1}/${SCENES.length} · ${s.t}`;
+  SCENES.forEach((x,k)=>{x.seg.classList.toggle('done',k<i); x.seg.querySelector('i').style.width=k<i?'100%':'0';});
+  elapsed=0; t0=performance.now(); speak(s.cap);
+}
+function tick(n){
+  if(playing){
+    const s=SCENES[cur], e=elapsed+(n-t0)/1000;
+    s.seg.querySelector('i').style.width=Math.min(100,100*e/s.d)+'%';
+    const before=SCENES.slice(0,cur).reduce((a,x)=>a+x.d,0);
+    document.getElementById('time').textContent=`${fmt(before+Math.min(e,s.d))} / ${fmt(total)}`;
+    const speaking=voice&&'speechSynthesis' in window&&speechSynthesis.speaking;
+    if(e>=s.d && !speaking){ if(cur<SCENES.length-1) go(cur+1); else setPlay(false); }
+  }
+  raf=requestAnimationFrame(tick);
+}
+function setPlay(p){
+  if(p&&!playing){t0=performance.now(); if(cur===SCENES.length-1&&elapsed>=SCENES[cur].d)go(0);}
+  if(!p&&playing){elapsed+=(performance.now()-t0)/1000;}
+  playing=p; document.getElementById('bPlay').textContent=p?'❚❚':'▶';
+  if('speechSynthesis' in window){ if(p){ if(speechSynthesis.paused)speechSynthesis.resume(); else if(!speechSynthesis.speaking)speak(SCENES[cur].cap);} else speechSynthesis.pause(); }
+}
+document.getElementById('play').onclick=()=>{document.getElementById('start').classList.add('gone'); playing=true; go(0);};
+document.getElementById('bPlay').onclick=()=>setPlay(!playing);
+document.getElementById('bPrev').onclick=()=>go(cur-1);
+document.getElementById('bNext').onclick=()=>go(cur+1);
+document.getElementById('bVoice').onclick=e=>{voice=!voice; e.currentTarget.setAttribute('aria-pressed',voice); if(!voice&&'speechSynthesis' in window)speechSynthesis.cancel();};
+document.getElementById('bCap').onclick=e=>{const on=document.body.classList.toggle('nocap'); e.currentTarget.setAttribute('aria-pressed',!on);};
+document.getElementById('bFs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen?.();
+addEventListener('keydown',e=>{
+  if(document.getElementById('start').classList.contains('gone')===false){ if(e.key===' '||e.key==='Enter'){e.preventDefault();document.getElementById('play').click();} return; }
+  if(e.key===' '){e.preventDefault(); setPlay(!playing);} else if(e.key==='ArrowRight')go(cur+1); else if(e.key==='ArrowLeft')go(cur-1);
+  else if(e.key==='f')document.getElementById('bFs').click(); else if(e.key==='c')document.getElementById('bCap').click(); else if(e.key==='v')document.getElementById('bVoice').click();
+});
+if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=()=>{};
+requestAnimationFrame(tick);
+
+/* tooltip */
+const tip=document.getElementById('tip');
+addEventListener('pointermove',e=>{const t=e.target.closest('[data-tip]'); if(!t){tip.style.opacity=0;return;}
+  tip.textContent=t.dataset.tip; tip.style.opacity=1;
+  tip.style.left=Math.min(innerWidth-tip.offsetWidth-8,e.clientX+14)+'px'; tip.style.top=(e.clientY-36)+'px';});
+
+/* ambient background */
+const cv=document.getElementById('bg'), cx=cv.getContext('2d'); let blobs=[];
+function rs(){cv.width=innerWidth*devicePixelRatio; cv.height=innerHeight*devicePixelRatio;}
+addEventListener('resize',rs); rs();
+const hues=['217,89,38','57,135,229','25,158,112','239,228,214'];
+for(let i=0;i<7;i++)blobs.push({x:Math.random(),y:Math.random(),r:.25+Math.random()*.25,vx:(Math.random()-.5)*.00025,vy:(Math.random()-.5)*.00025,c:hues[i%4]});
+(function draw(){
+  const w=cv.width,h=cv.height; cx.fillStyle='#0f0e0c'; cx.fillRect(0,0,w,h);
+  blobs.forEach(b=>{b.x+=b.vx;b.y+=b.vy; if(b.x<0||b.x>1)b.vx*=-1; if(b.y<0||b.y>1)b.vy*=-1;
+    const g=cx.createRadialGradient(b.x*w,b.y*h,0,b.x*w,b.y*h,b.r*Math.max(w,h)); g.addColorStop(0,`rgba(${b.c},.10)`); g.addColorStop(1,`rgba(${b.c},0)`);
+    cx.fillStyle=g; cx.fillRect(0,0,w,h);});
+  requestAnimationFrame(draw);
+})();
+</script>
+</body>
+</html>
